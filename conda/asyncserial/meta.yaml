@@ -8,16 +8,18 @@ source:
 build:
   noarch: python
   number: {{ environ.get("GIT_DESCRIBE_NUMBER", 0) }}
-  string: py35_{{ environ.get("GIT_DESCRIBE_NUMBER", 0) }}+git{{ environ.get("GIT_DESCRIBE_HASH", "")[1:] }}
+  string: py27_{{ environ.get("GIT_DESCRIBE_NUMBER", 0) }}+git{{ environ.get("GIT_DESCRIBE_HASH", "")[1:] }}
   script: python setup.py install
 
 requirements:
   build:
-    - python >=3.5.0
+    - python 2.7*
     - pyserial
+    - trollius
   run:
-    - python >=3.5.0
+    - python 2.7*
     - pyserial
+    - trollius
 
 test:
   imports:
