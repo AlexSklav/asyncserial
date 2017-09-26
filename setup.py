@@ -1,12 +1,6 @@
-#!/usr/bin/env python3
-
-import sys
+#!/usr/bin/env python
 from setuptools import setup
 from setuptools import find_packages
-
-
-if sys.version_info[:3] < (3, 5):
-    raise SystemExit("You need Python 3.5+")
 
 
 setup(
@@ -19,6 +13,6 @@ setup(
     download_url="https://github.com/m-labs/asyncserial",
     license="BSD",
     packages=find_packages(),
-    install_requires=["pyserial"],
+    install_requires=["pyserial", "trollius"],
     platforms=["Any"]
 )
