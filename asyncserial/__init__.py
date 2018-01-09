@@ -1,1 +1,1 @@
-from asyncserial.asyncserial import *
+from .asyncserial import *

@@ -1,4 +1,4 @@
-import asyncio
+import trollius as asyncio
 import os
 import serial
 
@@ -7,8 +7,8 @@ __all__ = ["AsyncSerial"]
 
 
 class AsyncSerialBase:
-    def __init__(self, port=None, loop=None, timeout=None, write_timeout=None, inter_byte_timeout=None,
-                 **kwargs):
+    def __init__(self, port=None, loop=None, timeout=None, write_timeout=None,
+                 inter_byte_timeout=None, **kwargs):
         if (timeout is not None
                 or write_timeout is not None
                 or inter_byte_timeout is not None):
@@ -24,16 +24,18 @@ class AsyncSerialBase:
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    async def read_exactly(self, n):
+    @asyncio.coroutine
+    def read_exactly(self, n):
         data = bytearray()
         while len(data) < n:
             remaining = n - len(data)
-            data += await self.read(remaining)
-        return data
+            data += yield asyncio.From(self.read(remaining))
+        raise asyncio.Return(data)
 
-    async def write_exactly(self, data):
+    @asyncio.coroutine
+    def write_exactly(self, data):
         while data:
-            res = await self.write(data)
+            res = yield asyncio.From(self.write(data))
             data = data[res:]
 
 
@@ -99,7 +101,7 @@ if os.name != "nt":
             else:
                 try:
                     res = os.write(self.fileno(), data)
-                except BlockingIOError:
+                except asyncio.BlockingIOError:
                     self.write_future = future
                     self._loop.add_writer(self.fileno(),
                                           self._write_ready, data)
@@ -144,7 +146,6 @@ else:
 
         def __exit__(self, t, v, tb):
             pass
-
 
     class AsyncSerial(AsyncSerialBase):
         """Requires ProactorEventLoop"""
