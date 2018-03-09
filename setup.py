@@ -7,7 +7,7 @@ from setuptools import find_packages
 install_requires = ["pyserial"]
 
 if sys.version_info[:3] < (3, 5):
-    #: .. versionadded:: X.X.X
+    #: .. versionadded:: 0.2.1
     #:     Add support for Python 2.7 using trollius.
     install_requires += ['trollius']
 

@@ -14,13 +14,13 @@ requirements:
   build:
     - python
     - pyserial
-    #: .. versionadded:: X.X.X
+    #: .. versionadded:: 0.2.1
     #:     Add support for Python 2.7.
     - trollius  # [py27]
   run:
     - python
     - pyserial
-    #: .. versionadded:: X.X.X
+    #: .. versionadded:: 0.2.1
     #:     Add support for Python 2.7.
     - trollius  # [py27]
 
