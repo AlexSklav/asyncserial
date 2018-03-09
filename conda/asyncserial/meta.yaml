@@ -6,18 +6,23 @@ source:
   git_url: ../..
 
 build:
-  noarch: python
   number: {{ environ.get("GIT_DESCRIBE_NUMBER", 0) }}
   string: py35_{{ environ.get("GIT_DESCRIBE_NUMBER", 0) }}+git{{ environ.get("GIT_DESCRIBE_HASH", "")[1:] }}
   script: python setup.py install
 
 requirements:
   build:
-    - python >=3.5.0
+    - python
     - pyserial
+    #: .. versionadded:: X.X.X
+    #:     Add support for Python 2.7.
+    - trollius  # [py27]
   run:
-    - python >=3.5.0
+    - python
     - pyserial
+    #: .. versionadded:: X.X.X
+    #:     Add support for Python 2.7.
+    - trollius  # [py27]
 
 test:
   imports:
