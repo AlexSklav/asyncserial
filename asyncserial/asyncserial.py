@@ -1,12 +1,23 @@
-import asyncio
 import os
+import sys
 import serial
 
 
 __all__ = ["AsyncSerial"]
 
 
-class AsyncSerialBase:
+if sys.version_info[0] < 3:
+    import trollius as asyncio
+
+    from ._asyncpy27 import (AsyncSerialPy27Mixin as AsyncSerialMixin,
+                             BlockingIOError)
+else:
+    import asyncio
+
+    from ._asyncpy3 import AsyncSerialPy3Mixin as AsyncSerialMixin
+
+
+class AsyncSerialBase(AsyncSerialMixin):
     def __init__(self, port=None, loop=None, timeout=None, write_timeout=None, inter_byte_timeout=None,
                  **kwargs):
         if (timeout is not None
@@ -23,18 +34,6 @@ class AsyncSerialBase:
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
-
-    async def read_exactly(self, n):
-        data = bytearray()
-        while len(data) < n:
-            remaining = n - len(data)
-            data += await self.read(remaining)
-        return data
-
-    async def write_exactly(self, data):
-        while data:
-            res = await self.write(data)
-            data = data[res:]
 
 
 if os.name != "nt":
