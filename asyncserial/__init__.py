@@ -1,7 +1,8 @@
-from __future__ import absolute_import
-import sys
+# -*- encoding: utf-8 -*-
+from .asyncserial import *
+from .async_thread import BackgroundSerialAsync
 
-from asyncserial.asyncserial import *
+from ._version import get_versions
 
-if sys.version_info[0] >= 3:
-    from ._asyncpy3_thread import BackgroundSerialAsync
+__version__ = get_versions()['version']
+del get_versions

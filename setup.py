@@ -1,16 +1,6 @@
 #!/usr/bin/env python3
-
-import sys
 from setuptools import setup
 from setuptools import find_packages
-
-install_requires = ["pyserial"]
-
-if sys.version_info[:3] < (3, 5):
-    #: .. versionadded:: 0.2.1
-    #:     Add support for Python 2.7 using trollius.
-    install_requires += ['trollius']
-
 
 setup(
     name="asyncserial",
@@ -22,6 +12,6 @@ setup(
     download_url="https://github.com/m-labs/asyncserial",
     license="BSD",
     packages=find_packages(),
-    install_requires=install_requires,
+    install_requires=["pyserial"],
     platforms=["Any"]
 )

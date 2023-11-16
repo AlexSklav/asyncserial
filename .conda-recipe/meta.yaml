@@ -1,0 +1,41 @@
+{% if GIT_DESCRIBE_NUMBER > '0' %}
+{% set GIT_VERSION = GIT_DESCRIBE_TAG[1:] + '.post' + GIT_DESCRIBE_NUMBER %}
+{% else %}
+{% set GIT_VERSION = GIT_DESCRIBE_TAG[1:] %}
+{% endif %}
+{% set PKG_NAME = 'asyncserial' %}
+{% set MODULE_NAME = PKG_NAME %}
+package:
+  name: {{ PKG_NAME }}
+  version: {{ GIT_VERSION }}
+
+build:
+  # If this is a new build for the same version, increment the build number.
+  # If you do not include this key, it defaults to 0.
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record record.txt
+  noarch: python
+
+requirements:
+  build:
+    - python >=3.8
+    - pyserial
+
+  run:
+    - python >=3.8
+    - pyserial
+
+test:
+  imports:
+    - {{ MODULE_NAME }}
+
+about:
+  home: https://m-labs.hk
+  license: BSD
+  summary: asyncio support for pyserial
+
+# source will be downloaded prior to filling in jinja templates
+# Example assumes that this folder has setup.py in it
+source:
+#  git_url: ../
+  path: ..
