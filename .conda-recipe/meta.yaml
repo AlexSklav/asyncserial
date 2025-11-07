@@ -21,10 +21,12 @@ requirements:
     - python >=3.6
     - pyserial
     - setuptools
+    - logging-helpers
 
   run:
     - python >=3.6
     - pyserial
+    - logging-helpers
 
 test:
   imports:
