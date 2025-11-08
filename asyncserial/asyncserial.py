@@ -5,6 +5,7 @@ import serial
 import asyncio
 
 from typing import Union, Optional
+
 from logging_helpers import _L
 
 __all__ = ["AsyncSerial"]
@@ -21,11 +22,13 @@ class AsyncSerialBase:
         if any(key in kwargs for key in ['timeout', 'write_timeout', 'inter_byte_timeout']):
             [kwargs.pop(key, None) for key in ['timeout', 'write_timeout', 'inter_byte_timeout']]
             _L().warning("Asynchronous I/O requires non-blocking devices, setting timeouts to `None`")
-        
+
+        warned = kwargs.pop('warned', False)
         try:
             self._serial = serial.serial_for_url(port, **kwargs)
-        except Exception as exc:
-            _L().error(f"Failed to open serial port {port}: {exc}")
+        except Exception:
+            if not warned:
+                _L().error(f"Failed to open serial port {port}")
             raise
         
         if self._serial.is_open:
@@ -235,8 +238,8 @@ class AsyncSerial(AsyncSerialBase):
                 serial.win32.SetCommTimeouts(handle, ctypes.byref(timeouts))
 
                 self.handle_wrapper = HandleWrapper(handle)
-            except Exception as exc:
-                _L().error(f"Failed to setup Windows serial port: {exc}")
+            except Exception:
+                _L().error("Failed to setup Windows serial port", exc_info=True)
                 raise
 
     def check_data(self, data: Union[bytes, bytearray, str]) -> bytes:
@@ -260,7 +263,7 @@ class AsyncSerial(AsyncSerialBase):
             return data.encode('utf-8')
         else:
             raise TypeError(f'Cannot convert {type(data).__name__} to bytes. '
-                          f'Expected bytes, bytearray, or str.')
+                            f'Expected bytes, bytearray, or str.')
 
     if os.name == "nt":
         def fileno(self) -> Optional[int]:
@@ -280,8 +283,8 @@ class AsyncSerial(AsyncSerialBase):
                 return b""
             try:
                 return await asyncio.get_running_loop()._proactor.recv(self.handle_wrapper, n)
-            except Exception as exc:
-                _L().error(f"Error reading from serial port: {exc}")
+            except Exception:
+                _L().error("Error reading from serial port", exc_info=True)
                 raise
 
         async def write(self, data: Union[bytes, bytearray, str]) -> int:
@@ -293,8 +296,8 @@ class AsyncSerial(AsyncSerialBase):
                 return 0
             try:
                 return await asyncio.get_running_loop()._proactor.send(self.handle_wrapper, data_bytes)
-            except Exception as exc:
-                _L().error(f"Error writing to serial port: {exc}")
+            except Exception:
+                _L().error("Error writing to serial port", exc_info=True)
                 raise
 
         def close(self) -> None:
@@ -311,8 +314,7 @@ class AsyncSerial(AsyncSerialBase):
                     _L().debug("Serial port already closed")
                 else:
                     raise
-            except Exception as exc:
-                _L().error(f"Error closing serial port: {exc}")
+            except Exception:
                 raise
     else:
         def fileno(self) -> Optional[int]:
@@ -507,6 +509,6 @@ class AsyncSerial(AsyncSerialBase):
                     _L().debug("Serial port already closed")
                 else:
                     raise
-            except Exception as exc:
-                _L().error(f"Error closing serial port: {exc}")
+            except Exception:
+                _L().error("Error closing serial port", exc_info=True)
                 raise
