@@ -29,6 +29,8 @@ requirements:
     - logging-helpers
 
 test:
+  requires:
+    - pytest
   imports:
     - {{ MODULE_NAME }}
 

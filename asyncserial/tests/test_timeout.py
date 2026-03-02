@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-from nose.tools import raises
+import pytest
 import asyncserial
 import serial
 import serial.tools.list_ports
@@ -31,7 +31,7 @@ def test_asyncserial_timeout_workaround():
                 with serial.Serial(**kwargs):
                     pass
                 break
-            except serial.SerialException as exception:
+            except serial.SerialException:
                 pass
         else:
             raise Exception
@@ -78,7 +78,7 @@ def test_asyncserial_timeout_error():
                 with serial.Serial(**kwargs):
                     pass
                 break
-            except serial.SerialException as exception:
+            except serial.SerialException:
                 pass
         else:
             raise Exception
@@ -94,4 +94,5 @@ def test_asyncserial_timeout_error():
     try:
         _open_serial()
     except serial.SerialException:
-        raises(serial.SerialException)(_open_serial)()
+        with pytest.raises(serial.SerialException):
+            _open_serial()
