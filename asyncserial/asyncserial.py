@@ -283,6 +283,19 @@ class AsyncSerial(AsyncSerialBase):
                 return b""
             try:
                 return await asyncio.get_running_loop()._proactor.recv(self.handle_wrapper, n)
+            except (ConnectionResetError, ConnectionAbortedError,
+                    asyncio.CancelledError):
+                # WinError 995: I/O aborted due to thread exit or close().
+                # This is expected during shutdown — don't log as error.
+                if self._closed:
+                    raise IOError("Serial port is closed")
+                _L().warning("Serial read aborted", exc_info=True)
+                raise
+            except OSError as exc:
+                if self._closed:
+                    raise IOError("Serial port is closed")
+                _L().error("Error reading from serial port", exc_info=True)
+                raise
             except Exception:
                 _L().error("Error reading from serial port", exc_info=True)
                 raise
@@ -296,6 +309,17 @@ class AsyncSerial(AsyncSerialBase):
                 return 0
             try:
                 return await asyncio.get_running_loop()._proactor.send(self.handle_wrapper, data_bytes)
+            except (ConnectionResetError, ConnectionAbortedError,
+                    asyncio.CancelledError):
+                if self._closed:
+                    raise IOError("Serial port is closed")
+                _L().warning("Serial write aborted", exc_info=True)
+                raise
+            except OSError as exc:
+                if self._closed:
+                    raise IOError("Serial port is closed")
+                _L().error("Error writing to serial port", exc_info=True)
+                raise
             except Exception:
                 _L().error("Error writing to serial port", exc_info=True)
                 raise
